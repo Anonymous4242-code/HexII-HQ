@@ -1,264 +1,370 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<title>HEX II Headquarters</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HEX II Headquarters — Dashboard</title>
 <style>
+  :root{
+    --primary:#00BFFF;
+    --secondary:#00FFFF;
+    --bg:#050A18;
+    --panel:#081425;
+    --muted:rgba(255,255,255,0.07);
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(0,191,255,0.12);
+    --neon: drop-shadow(0 0 8px rgba(0,191,255,0.25)) hue-rotate(0deg);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#050A18 0%, #021026 100%);color:#d8eaf6;}
+  /* Layout */
+  .app{display:grid;grid-template-columns:280px 1fr;gap:20px;height:100vh;padding:24px;box-sizing:border-box;}
+  @media (max-width:900px){ .app{grid-template-columns:1fr;grid-auto-rows:min-content;padding:12px;} .sidebar{order:2;} .main{order:1;} }
 
-body{
-    display:flex;
-    background:#050A18;
-    color:white;
-}
+  /* Sidebar */
+  .sidebar{
+    background:linear-gradient(180deg, rgba(8,20,37,0.65), rgba(8,20,37,0.35));
+    border:1px solid var(--glass-border);
+    border-radius:14px;
+    backdrop-filter: blur(8px);
+    padding:18px;
+    height:calc(100vh - 48px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 24px rgba(0,191,255,0.03) inset;
+    overflow:auto;
+  }
+  .logo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .hex{
+    width:46px;height:46px;background:linear-gradient(135deg,var(--primary),var(--secondary));
+    clip-path: polygon(25% 6.7%,75% 6.7%,100% 50%,75%93.3%,25%93.3%,0%50%);
+    box-shadow:0 0 24px rgba(0,191,255,0.12);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#021026;
+  }
+  .brand{font-size:14px;font-weight:700;letter-spacing:0.6px}
+  .nav{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .nav a{
+    display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:var(--primary);text-decoration:none;font-size:14px;
+    background:linear-gradient(180deg, rgba(0,191,255,0.03), rgba(0,191,255,0.01));
+    border:1px solid rgba(0,191,255,0.04);
+  }
+  .nav a.active{box-shadow: 0 0 18px rgba(0,191,255,0.12);border-color:rgba(0,191,255,0.12);}
 
-/* Sidebar */
+  /* Main area */
+  .main{display:flex;flex-direction:column;gap:18px;height:100%;overflow:auto}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;
+    background:linear-gradient(90deg, rgba(8,20,37,0.45), rgba(8,20,37,0.25));border:1px solid var(--glass-border);
+    backdrop-filter: blur(6px);
+  }
+  .search{display:flex;align-items:center;gap:10px;background:var(--panel);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);min-width:280px;}
+  .search input{background:transparent;border:0;color:inherit;outline:none;width:100%;}
+  .actions{display:flex;gap:8px;align-items:center}
+  .btn{
+    background:linear-gradient(180deg,var(--primary),rgba(0,191,255,0.9));
+    color:#021026;padding:8px 12px;border-radius:8px;border:0;font-weight:600;cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,191,255,0.08);
+  }
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--primary);padding:8px 10px;border-radius:8px}
 
-.sidebar{
-    width:250px;
-    height:100vh;
-    background:#081425;
-    border-right:1px solid #00ffff;
-    padding:20px;
-}
+  /* Dashboard grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:700px){ .grid{grid-template-columns:1fr;} }
 
-.logo{
-    font-size:28px;
-    color:#00ffff;
-    text-align:center;
-    margin-bottom:30px;
-    text-shadow:0 0 15px #00ffff;
-}
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;padding:16px;border:1px solid var(--glass-border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    transition:transform .18s;
+  }
+  .panel:hover{transform:translateY(-6px)}
+  .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .panel-title{font-weight:700;color:#bfefff;letter-spacing:0.4px}
+  .small{font-size:12px;color:#8fbfdc}
 
-.menu-item{
-    padding:15px;
-    margin-bottom:10px;
-    background:#0d1c2e;
-    border-radius:10px;
-    cursor:pointer;
-}
+  /* Stats */
+  .stats{display:flex;gap:12px;flex-wrap:wrap}
+  .stat{
+    flex:1 1 120px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border-radius:10px;padding:12px;border:1px solid rgba(0,191,255,0.06);
+    display:flex;flex-direction:column;gap:6px;min-width:110px;
+  }
+  .stat .num{font-size:20px;font-weight:800;color:var(--primary)}
+  .stat .label{font-size:12px;color:#9dcfe7}
 
-.menu-item:hover{
-    background:#12304d;
-}
+  /* Activity feed */
+  .feed{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;padding-right:6px}
+  .feed-item{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02)}
+  .avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#021026;font-weight:700}
+  .feed-content{flex:1}
+  .feed-time{font-size:12px;color:#7ba9c6}
 
-/* Main Area */
+  /* Quick actions */
+  .quick{display:flex;flex-wrap:wrap;gap:10px}
+  .quick .qa{flex:1 1 140px;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(0,191,255,0.06),rgba(0,255,255,0.02));border:1px solid rgba(0,191,255,0.04);color:var(--primary);font-weight:700;cursor:pointer;text-align:center}
 
-.main{
-    flex:1;
-    padding:40px;
-}
+  /* Right column */
+  .right-col{display:flex;flex-direction:column;gap:12px}
+  .card-list{display:flex;flex-direction:column;gap:10px}
+  .mini{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.02)}
 
-h1{
-    color:#00ffff;
-    margin-bottom:20px;
-}
+  /* hex decorative */
+  .hex-decor{position:relative}
+  .hex-decor::after{
+    content:"";position:absolute;right:-28px;top:-28px;width:120px;height:120px;opacity:0.06;
+    background:linear-gradient(135deg,var(--primary),transparent);clip-path: polygon(25% 6.7%,75% 6.7%,100% 50%,75%93.3%,25%93.3%,0%50%);
+    filter:blur(14px);
+  }
 
-.card{
-    background:#081425;
-    padding:20px;
-    border-radius:15px;
-    border:1px solid rgba(0,255,255,.2);
-    max-width:500px;
-}
-
+  /* footer small */
+  .muted{font-size:12px;color:#7c9db9}
 </style>
 </head>
-
 <body>
-
-<div class="sidebar">
-
+<div class="app">
+  <aside class="sidebar">
     <div class="logo">
-HEX II Headquarters v1.0
+      <div class="hex">HX</div>
+      <div>
+        <div class="brand">HEX II</div>
+        <div class="small">Headquarters</div>
+      </div>
     </div>
 
-    <div class="menu-item" onclick="showPage('dashboard')">
-🏠 Dashboard
-</div>
+    <nav class="nav" aria-label="Main modules">
+      <a class="active" href="#">Dashboard</a>
+      <a href="#">Members</a>
+      <a href="#">Recruitment</a>
+      <a href="#">Training</a>
+      <a href="#">Intelligence</a>
+      <a href="#">Treasury</a>
+      <a href="#">Armory</a>
+      <a href="#">Communications</a>
+      <a href="#">Events</a>
+      <a href="#">Analytics</a>
+      <a href="#">Boardroom</a>
+      <a href="#" style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.02);padding-top:12px">Settings</a>
+    </nav>
+  </aside>
 
-<div class="menu-item" onclick="showPage('war')">
-⚔ War Room
-</div>
-
-<div class="menu-item" onclick="showPage('members')">
-👥 Members
-</div>
-
-    <div class="menu-item">🎓 Training</div>
-
-    <div class="menu-item">💰 Treasury</div>
-
-    <div class="menu-item">📊 Analytics</div>
-
-</div>
-
-<div class="main">
-
-    <h1 id="pageTitle">Command Center</h1>
-
-    <div class="card">
-        <div id="content">
-
-            <h2>HEX II Status</h2>
-
-<br>
-
-<p>👥 Members Online: 48</p>
-
-<br>
-
-<p>⚔ War Status: ACTIVE</p>
-
-<br>
-
-<p>💰 Treasury: $1.2B</p>
-
-<br>
-
-<p>📨 Applications: 17</p>
-
-<br>
-
-<p>📡 Communications: ONLINE</p>
-            
-<div class="card">
-
-<h2>Recent Activity</h2>
-
-<br>
-
-<p>✅ Nova joined faction</p>
-
-<p>⚔ War objective updated</p>
-
-<p>💰 Donation received</p>
-
-<p>📨 New recruit application</p>
-
-</div>
+  <main class="main">
+    <div class="topbar panel">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#00BFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#00BFFF" stroke-width="1.6"/></svg>
+          <input placeholder="Search members, events, guides..." />
         </div>
+        <div class="muted small">Welcome, Commander</div>
+      </div>
+      <div class="actions">
+        <button class="ghost">Notifications</button>
+        <button class="btn">New</button>
+      </div>
     </div>
 
+    <section class="grid">
+      <div class="panel hex-decor">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Live Statistics</div>
+            <div class="small">Real-time overview</div>
+          </div>
+          <div class="small">Updated: a few seconds</div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="num" id="totalMembers">1,024</div>
+            <div class="label">Total members</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="onlineMembers">128</div>
+            <div class="label">Online</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="recruits">54</div>
+            <div class="label">Recruits</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="eventsWeek">7</div>
+            <div class="label">Events this week</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="treasury">$12,540</div>
+            <div class="label">Treasury balance</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="announcements">3</div>
+            <div class="label">Recent announcements</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Activity Feed</div>
+            <div class="small">Recent actions</div>
+          </div>
+        </div>
+        <div class="feed" id="feed">
+          <div class="feed-item">
+            <div class="avatar">N</div>
+            <div class="feed-content">
+              <div style="font-weight:700">New member joined — NovaBlade</div>
+              <div class="feed-time">5 minutes ago • Joined as Recruit</div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="avatar">A</div>
+            <div class="feed-content">
+              <div style="font-weight:700">Announcement posted — Operation Tide</div>
+              <div class="feed-time">1 hour ago • Leadership</div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="avatar">E</div>
+            <div class="feed-content">
+              <div style="font-weight:700">Event created — Training Scrim</div>
+              <div class="feed-time">3 hours ago • Events Center</div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="avatar">R</div>
+            <div class="feed-content">
+              <div style="font-weight:700">Report submitted — Intel Dept.</div>
+              <div class="feed-time">Yesterday • Intelligence</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Quick Actions</div>
+            <div class="small">One-click operations</div>
+          </div>
+        </div>
+
+        <div class="quick">
+          <div class="qa">Add member</div>
+          <div class="qa">Create event</div>
+          <div class="qa">Post announcement</div>
+          <div class="qa">Submit report</div>
+          <div class="qa">Open recruitment</div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Module Snapshot — Member Management</div>
+            <div class="small">Quick actions for members</div>
+          </div>
+          <div class="small">Search & Admin</div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="text-align:left;color:#9fd7ff;font-size:12px">
+                <th style="padding:8px 6px">Username</th>
+                <th style="padding:8px 6px">Rank</th>
+                <th style="padding:8px 6px">Join date</th>
+                <th style="padding:8px 6px">Activity</th>
+                <th style="padding:8px 6px">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid rgba(255,255,255,0.02)">
+                <td style="padding:10px 6px">NovaBlade</td>
+                <td style="padding:10px 6px">Recruit</td>
+                <td style="padding:10px 6px">2026-03-08</td>
+                <td style="padding:10px 6px">42</td>
+                <td style="padding:10px 6px">Active</td>
+              </tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.02)">
+                <td style="padding:10px 6px">Aegis</td>
+                <td style="padding:10px 6px">Officer</td>
+                <td style="padding:10px 6px">2024-11-20</td>
+                <td style="padding:10px 6px">88</td>
+                <td style="padding:10px 6px">Active</td>
+              </tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.02)">
+                <td style="padding:10px 6px">Raptor</td>
+                <td style="padding:10px 6px">Member</td>
+                <td style="padding:10px 6px">2025-06-02</td>
+                <td style="padding:10px 6px">61</td>
+                <td style="padding:10px 6px">Suspended</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="right-col">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Upcoming Events</div>
+              <div class="small">RSVP & calendar</div>
+            </div>
+            <div class="small">7 this week</div>
+          </div>
+          <div class="card-list">
+            <div class="mini"><div><strong>Training Scrim</strong><div class="small">Today • 20:00 UTC</div></div><div class="small">12/30</div></div>
+            <div class="mini"><div><strong>Strategy Meeting</strong><div class="small">Tomorrow • 18:00 UTC</div></div><div class="small">8/20</div></div>
+            <div class="mini"><div><strong>Recruit Interviews</strong><div class="small">Fri • 14:00 UTC</div></div><div class="small">5/10</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Treasury Snapshot</div>
+              <div class="small">Balance & trends</div>
+            </div>
+            <div class="small">$12,540</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1;background:linear-gradient(180deg,rgba(0,191,255,0.03),transparent);padding:12px;border-radius:10px;border:1px solid rgba(0,191,255,0.03)">
+              <div class="small">Weekly Income</div>
+              <div style="font-weight:800;color:var(--primary)">$1,420</div>
+            </div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(255,0,0,0.02),transparent);padding:12px;border-radius:10px;border:1px solid rgba(255,0,0,0.02)">
+              <div class="small">Weekly Expense</div>
+              <div style="font-weight:800;color:#ff9aa2">$420</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Shortcuts</div>
+              <div class="small">Administration</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <button class="ghost">Promote member</button>
+            <button class="ghost">Start recruitment</button>
+            <button class="ghost">Create budget</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <div class="muted">HEX II Headquarters • Command Center UI</div>
+      <div class="small">v0.1 • June 16, 2026</div>
+    </div>
+
+  </main>
 </div>
-<script>
-    function loadMembers() {
-    const members = JSON.parse(localStorage.getItem("members")) || [];
-
-    const list = document.getElementById("memberList");
-
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    members.forEach(member => {
-        list.innerHTML += `
-        <p>👤 ${member}</p>
-        `;
-    });
-}
-
-function addMember() {
-
-    const input = document.getElementById("memberInput");
-
-    const name = input.value.trim();
-
-    if(name === "") return;
-
-    const members = JSON.parse(localStorage.getItem("members")) || [];
-
-    members.push(name);
-
-    localStorage.setItem(
-        "members",
-        JSON.stringify(members)
-    );
-
-    input.value = "";
-
-    loadMembers();
-}
-
-if(page==="members"){
-
-title.innerHTML="Members";
-
-content.innerHTML=`
-
-<h2>Member Management</h2>
-
-<br>
-
-<input
-id="memberInput"
-placeholder="Enter member name">
-
-<button onclick="addMember()">
-Add Member
-</button>
-
-<br><br>
-
-<div id="memberList"></div>
-
-`;
-
-setTimeout(loadMembers,100);
-
-}
-
-const title = document.getElementById("pageTitle");
-const content = document.getElementById("content");
-
-if(page==="dashboard"){
-
-title.innerHTML="Command Center";
-
-content.innerHTML=`
-<h2>System Online</h2>
-<p>Members Online: 48</p>
-<p>War Status: ACTIVE</p>
-<p>Treasury Balance: $1.2B</p>
-`;
-
-}
-
-if(page==="war"){
-
-title.innerHTML="War Room";
-
-content.innerHTML=`
-<h2>Current War</h2>
-<p>Enemy: CORELABS</p>
-<p>Progress: 75%</p>
-<p>Participants: 42</p>
-`;
-
-}
-
-if(page==="members"){
-
-title.innerHTML="Members";
-
-content.innerHTML=`
-<h2>Member List</h2>
-<p>HEX Leader</p>
-<p>ShadowX</p>
-<p>Nova</p>
-<p>PlayerOne</p>
-`;
-
-}
-
-}
-
-</script>
 </body>
 </html>
