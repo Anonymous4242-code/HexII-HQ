@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HEX II Headquarters</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    display:flex;
+    background:#050A18;
+    color:white;
+}
+
+/* Sidebar */
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:#081425;
+    border-right:1px solid #00ffff;
+    padding:20px;
+}
+
+.logo{
+    font-size:28px;
+    color:#00ffff;
+    text-align:center;
+    margin-bottom:30px;
+    text-shadow:0 0 15px #00ffff;
+}
+
+.menu-item{
+    padding:15px;
+    margin-bottom:10px;
+    background:#0d1c2e;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu-item:hover{
+    background:#12304d;
+}
+
+/* Main Area */
+
+.main{
+    flex:1;
+    padding:40px;
+}
+
+h1{
+    color:#00ffff;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#081425;
+    padding:20px;
+    border-radius:15px;
+    border:1px solid rgba(0,255,255,.2);
+    max-width:500px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        HEX II
+    </div>
+
+    <div class="menu-item" onclick="showPage('dashboard')">
+🏠 Dashboard
+</div>
+
+<div class="menu-item" onclick="showPage('war')">
+⚔ War Room
+</div>
+
+<div class="menu-item" onclick="showPage('members')">
+👥 Members
+</div>
+
+    <div class="menu-item">🎓 Training</div>
+
+    <div class="menu-item">💰 Treasury</div>
+
+    <div class="menu-item">📊 Analytics</div>
+
+</div>
+
+<div class="main">
+
+    <h1 id="pageTitle">Command Center</h1>
+
+    <div class="card">
+        <div id="content">
+
+            <h2>System Online</h2>
+            <br>
+            <p>Members Online: 48</p>
+            <p>War Status: ACTIVE</p>
+            <p>Treasury Balance: $1.2B</p>
+
+        </div>
+    </div>
+
+</div>
+<script>
+
+function showPage(page){
+
+const title = document.getElementById("pageTitle");
+const content = document.getElementById("content");
+
+if(page==="dashboard"){
+
+title.innerHTML="Command Center";
+
+content.innerHTML=`
+<h2>System Online</h2>
+<p>Members Online: 48</p>
+<p>War Status: ACTIVE</p>
+<p>Treasury Balance: $1.2B</p>
+`;
+
+}
+
+if(page==="war"){
+
+title.innerHTML="War Room";
+
+content.innerHTML=`
+<h2>Current War</h2>
+<p>Enemy: CORELABS</p>
+<p>Progress: 75%</p>
+<p>Participants: 42</p>
+`;
+
+}
+
+if(page==="members"){
+
+title.innerHTML="Members";
+
+content.innerHTML=`
+<h2>Member List</h2>
+<p>HEX Leader</p>
+<p>ShadowX</p>
+<p>Nova</p>
+<p>PlayerOne</p>
+`;
+
+}
+
+}
+
+</script>
+</body>
+</html>
