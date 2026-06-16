@@ -147,9 +147,71 @@ HEX II Headquarters v1.0
     </div>
 
 </div>
-<script>
+<script>function loadMembers() {
+    const members = JSON.parse(localStorage.getItem("members")) || [];
 
-function showPage(page){
+    const list = document.getElementById("memberList");
+
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    members.forEach(member => {
+        list.innerHTML += `
+        <p>👤 ${member}</p>
+        `;
+    });
+}
+
+function addMember() {
+
+    const input = document.getElementById("memberInput");
+
+    const name = input.value.trim();
+
+    if(name === "") return;
+
+    const members = JSON.parse(localStorage.getItem("members")) || [];
+
+    members.push(name);
+
+    localStorage.setItem(
+        "members",
+        JSON.stringify(members)
+    );
+
+    input.value = "";
+
+    loadMembers();
+}
+
+if(page==="members"){
+
+title.innerHTML="Members";
+
+content.innerHTML=`
+
+<h2>Member Management</h2>
+
+<br>
+
+<input
+id="memberInput"
+placeholder="Enter member name">
+
+<button onclick="addMember()">
+Add Member
+</button>
+
+<br><br>
+
+<div id="memberList"></div>
+
+`;
+
+setTimeout(loadMembers,100);
+
+}
 
 const title = document.getElementById("pageTitle");
 const content = document.getElementById("content");
